@@ -16,6 +16,13 @@ const DIMENSIONS = {
 	z_value: parseInt(process.env.Z_VALUE)
 }
 
+/**
+* Creates a new line for a given
+* @param color color of the part
+* @param x x coordinate of the part
+* @param y y coordinate of the part
+* @param z z coordinate of the part
+*/
 function addLine(_color, _x, _y, _z, _partNo) {
 	let newLine = [];
 	// 1 means it is a part. See LDraw File Format Specification https://www.ldraw.org/article/218.html
@@ -42,6 +49,10 @@ function addLine(_color, _x, _y, _z, _partNo) {
 	return newLine;
 }
 
+/**
+* Gives the position for the next part given the
+* @param _currentPosition current position of the last part placed
+*/
 function nextPosition(_currentPosition, _dimensions) {
 
 	let postition = {
@@ -60,26 +71,30 @@ function nextPosition(_currentPosition, _dimensions) {
 }
 
 
+// First rows of the out file are the following
 let outRows = [
     ['0'],
 	['0','Name:', FILE_NAME],
 	['0', 'Author:',FILE_AUTHOR],
 ];
 
+// Starting position of the first part
 let currentPosition = {
 	x: DIMENSIONS.x_min,
 	y: DIMENSIONS.y_min,
 	z: DIMENSIONS.z_value
 }
 
-fs.createReadStream('in.csv')
+
+// Read the CSV file
+fs.createReadStream(process.env.IN_FILE_CSV)
     .pipe(csv.parse({ headers: true }))
     .on('error', error => console.error(error))
     .on('data', inRow => {
-    	console.log(`ROW=${JSON.stringify(inRow)}`);
+    	console.log(`ROW: ${JSON.stringify(inRow)}`);
 	
-
-    	for (var k = 0; k<inRow.quantity ; k++) {
+    	// Push as many new lines as the quantity value found in the CSV
+    	for (var k = 0; k< inRow.quantity ; k++) {
 			outRows.push(
 				addLine(
 					inRow.color, 
@@ -91,6 +106,7 @@ fs.createReadStream('in.csv')
 			)
 		}
 
+		// Increment position for th next part
 		currentPosition = nextPosition(currentPosition, DIMENSIONS);
 
     })
@@ -101,7 +117,7 @@ fs.createReadStream('in.csv')
 		// Write to file
 		writeToPath(FILE_NAME, outRows, { delimiter: ' ' })
 		    .on('error', err => console.error(err))
-		    .on('finish', () => console.log('Done writing.'));
+		    .on('finish', () => console.log(`Written ${outRows.length} rows`));
 
 
 
