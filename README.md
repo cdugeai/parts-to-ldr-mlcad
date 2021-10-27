@@ -7,7 +7,7 @@ Script to transform a list (CSV file) of parts into a ldr file containing all th
 As a input, use a `.csv` file with this exact format:
 
 ```csv
-Part,Color,Quantity
+partno,color,quantity
 11090,0,1
 23443,0,1
 36840,0,2

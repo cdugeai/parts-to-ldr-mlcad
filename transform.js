@@ -42,17 +42,6 @@ function addLine(_color, _x, _y, _z, _partNo) {
 	return newLine;
 }
 
-function get(_row, _attr) {
-	// Aliases and indices of columns
-	const ATTR = {
-		"part": process.env.COLUMN_PARTNO,
-		"color": process.env.COLUMN_COLOR,
-		"qty": process.env.COLUMN_QUANTITY
-	};
-
-	return _row[ATTR[_attr]];
-}
-
 function nextPosition(_currentPosition, _dimensions) {
 
 	let postition = {
@@ -84,20 +73,20 @@ let currentPosition = {
 }
 
 fs.createReadStream('in.csv')
-    .pipe(csv.parse(headers=true))
+    .pipe(csv.parse({ headers: true }))
     .on('error', error => console.error(error))
     .on('data', inRow => {
     	console.log(`ROW=${JSON.stringify(inRow)}`);
 	
 
-    	for (var k = 0; k<get(inRow, 'qty'); k++) {
+    	for (var k = 0; k<inRow.quantity ; k++) {
 			outRows.push(
 				addLine(
-					get(inRow, 'color'), 
+					inRow.color, 
 					currentPosition.x, 
 					currentPosition.y, 
 					currentPosition.z, 
-					get(inRow, 'part')
+					inRow.partno
 				)
 			)
 		}
