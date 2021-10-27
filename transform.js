@@ -11,9 +11,9 @@ const DIMENSIONS = {
 	x_min: parseInt(process.env.X_MIN),
 	x_max: parseInt(process.env.X_MAX),
 	x_step: parseInt(process.env.X_STEP),
-	y_min: parseInt(process.env.Y_MIN),
-	y_step: parseInt(process.env.Y_STEP),
-	z_value: parseInt(process.env.Z_VALUE)
+	z_min: parseInt(process.env.Z_MIN),
+	z_step: parseInt(process.env.Z_STEP),
+	y_value: parseInt(process.env.Y_VALUE)
 }
 
 /**
@@ -55,16 +55,22 @@ function addLine(_color, _x, _y, _z, _partNo) {
 */
 function nextPosition(_currentPosition, _dimensions) {
 
-	let postition = {
+	let oldpostition = {
 		x: _currentPosition.x + _dimensions.x_step, 	// increment X
 		y: _currentPosition.y, 							// keep Y
 		z: _dimensions.z_value							// keep constant Z
 	}
 
+	let postition = {
+		x: _currentPosition.x + _dimensions.x_step, 	// increment X
+		y: _dimensions.y_value, 							// keep Y
+		z: _currentPosition.z							// keep constant Z
+	}
+
 	// If X is too high, set it to min value and increment Y
 	if (postition.x > _dimensions.x_max) {
 		postition.x = _dimensions.x_min;
-		postition.y = _currentPosition.y + _dimensions.y_step;
+		postition.z = _currentPosition.z + _dimensions.z_step;
 	}
 	return postition;
 
@@ -81,8 +87,8 @@ let outRows = [
 // Starting position of the first part
 let currentPosition = {
 	x: DIMENSIONS.x_min,
-	y: DIMENSIONS.y_min,
-	z: DIMENSIONS.z_value
+	y: DIMENSIONS.y_value,
+	z: DIMENSIONS.z_min
 }
 
 
