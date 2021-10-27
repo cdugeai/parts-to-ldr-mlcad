@@ -1,26 +1,32 @@
 const fs = require('fs');
 const csv = require('@fast-csv/parse');
 const { writeToPath } = require('@fast-csv/format');
+require('dotenv').config({ path: '.config' })
+
+const FILE_NAME = process.env.FILE_NAME;
+const FILE_AUTHOR= process.env.FILE_AUTHOR;
 
 
-const FILE_NAME= 'yop.ldr'
-const FILE_AUTHOR= 'change_author'
 const DIMENSIONS = {
-	x_min: 0,
-	x_max: 500,
-	x_step: 50,
-	y_min: 0,
-	y_step: 50,
-	z_value: 0
+	x_min: parseInt(process.env.X_MIN),
+	x_max: parseInt(process.env.X_MAX),
+	x_step: parseInt(process.env.X_STEP),
+	y_min: parseInt(process.env.Y_MIN),
+	y_step: parseInt(process.env.Y_STEP),
+	z_value: parseInt(process.env.Z_VALUE)
 }
 
 function addLine(_color, _x, _y, _z, _partNo) {
 	let newLine = [];
+	// 1 means it is a part. See LDraw File Format Specification https://www.ldraw.org/article/218.html
 	newLine.push(1)
+	// color
 	newLine.push(_color)
+	// Position
 	newLine.push(_x)
 	newLine.push(_y)
 	newLine.push(_z)
+	// homogeneous transformation matrix coefficients
 	newLine.push(1)
 	newLine.push(0)
 	newLine.push(0)
@@ -30,17 +36,20 @@ function addLine(_color, _x, _y, _z, _partNo) {
 	newLine.push(0)
 	newLine.push(0)
 	newLine.push(1)
+	// No of the part
 	newLine.push(_partNo+'.dat')
-	return newLine
+
+	return newLine;
 }
 
 function get(_row, _attr) {
+	// Aliases and indices of columns
 	const ATTR = {
-		"part": 0,
-		"color": 1,
-		"qty": 2,
-		"spare": 3
+		"part": process.env.COLUMN_PARTNO,
+		"color": process.env.COLUMN_COLOR,
+		"qty": process.env.COLUMN_QUANTITY
 	};
+
 	return _row[ATTR[_attr]];
 }
 
@@ -57,7 +66,6 @@ function nextPosition(_currentPosition, _dimensions) {
 		postition.x = _dimensions.x_min;
 		postition.y = _currentPosition.y + _dimensions.y_step;
 	}
-	console.log(JSON.stringify(postition))
 	return postition;
 
 }
@@ -81,7 +89,6 @@ fs.createReadStream('in.csv')
     .on('data', inRow => {
     	console.log(`ROW=${JSON.stringify(inRow)}`);
 	
-		currentPosition = nextPosition(currentPosition, DIMENSIONS);
 
     	for (var k = 0; k<get(inRow, 'qty'); k++) {
 			outRows.push(
@@ -94,6 +101,9 @@ fs.createReadStream('in.csv')
 				)
 			)
 		}
+
+		currentPosition = nextPosition(currentPosition, DIMENSIONS);
+
     })
     .on('end', rowCount => {
     	console.log(`Parsed ${rowCount} rows`)
