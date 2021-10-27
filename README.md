@@ -37,3 +37,5 @@ It will produce a `.ldr` file with this structure:
 1 0 50 50 50 1 0 0 0 1 0 0 0 1 99207.dat
 1 0 50 50 50 1 0 0 0 1 0 0 0 1 99207.dat
 ```
+
+This file complies with the [LDraw File Format Specification](https://www.ldraw.org/article/218.html).
